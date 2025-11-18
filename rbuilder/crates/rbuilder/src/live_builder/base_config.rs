@@ -166,6 +166,9 @@ pub struct BaseConfig {
     pub backtest_builders: Vec<String>,
     pub backtest_results_store_path: PathBuf,
     pub backtest_protect_bundle_signers: Vec<Address>,
+    /// If false, will use fake payload when relays don't respond (allows fetching blocks without relay data)
+    #[serde(default = "default_backtest_require_payload")]
+    pub backtest_require_payload_from_relays: bool,
 
     /// We will store a file per block in this path.
     pub orderflow_tracing_store_path: Option<PathBuf>,
@@ -175,6 +178,10 @@ pub struct BaseConfig {
 
 pub fn default_ip() -> Ipv4Addr {
     Ipv4Addr::new(0, 0, 0, 0)
+}
+
+fn default_backtest_require_payload() -> bool {
+    true  // Default to requiring payload (backward compatible)
 }
 
 impl BaseConfig {
@@ -525,6 +532,7 @@ impl Default for BaseConfig {
             backtest_results_store_path: "/tmp/rbuilder-backtest-results.sqlite".parse().unwrap(),
             backtest_protect_bundle_signers: vec![],
             backtest_builders: Vec::new(),
+            backtest_require_payload_from_relays: true,
             live_builders: vec!["mgp-ordering".to_string(), "mp-ordering".to_string()],
             simulation_threads: 1,
             simulation_use_random_coinbase: true,

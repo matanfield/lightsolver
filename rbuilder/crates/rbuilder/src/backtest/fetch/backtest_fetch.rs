@@ -71,7 +71,11 @@ pub async fn run_backtest_fetch<
                 config.base_config().backtest_fetch_eth_rpc_parallel,
             );
 
-            fetcher = fetcher.with_datasource(order_source_factory(config.clone()).await?);
+            fetcher = fetcher
+                .with_require_delivered_payload_from_relays(
+                    config.base_config().backtest_require_payload_from_relays,
+                )
+                .with_datasource(order_source_factory(config.clone()).await?);
 
             let blocks_to_fetch: Box<dyn Iterator<Item = u64>> = if cli.range {
                 let from_block = cli.blocks.first().copied().unwrap_or(0);

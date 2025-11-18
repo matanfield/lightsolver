@@ -1,0 +1,44 @@
+# Mainnet Backtest Configuration
+
+log_level = "info,rbuilder=debug"
+
+chain = "mainnet"
+
+# QuickNode endpoints (set in .env)
+# QUICK_NODE_ETH_MAINNET_API_URL_HTTP=...
+# QUICK_NODE_ETH_MAINNET_API_URL_WSS=...
+backtest_fetch_eth_rpc_url = "env:QUICK_NODE_ETH_MAINNET_API_URL_HTTP"
+backtest_fetch_eth_rpc_parallel = 10
+backtest_fetch_output_file = "~/.rbuilder/backtest/mainnet.sqlite"
+backtest_fetch_mempool_data_dir = "~/.rbuilder/mempool-data/mainnet"
+backtest_results_store_path = "~/.rbuilder/backtest/mainnet-results.sqlite"
+
+# Set to false to allow fetching blocks even when relays don't have payload data
+# This uses a fake payload derived from the landed block instead
+backtest_require_payload_from_relays = false
+
+# Optional: provide a Reth datadir / IPC only if you run a local node
+# reth_datadir = "env:RETH_DATADIR"
+# ipc_provider = "/tmp/reth-mainnet.ipc"
+
+sbundle_mergeable_signers = []
+
+backtest_builders = ["greedy-mp-ordering", "greedy-mgp-ordering"]
+
+[[builders]]
+name = "greedy-mp-ordering"
+algo = "ordering-builder"
+discard_txs = true
+sorting = "max-profit"
+failed_order_retries = 1
+drop_failed_orders = true
+
+[[builders]]
+name = "greedy-mgp-ordering"
+algo = "ordering-builder"
+discard_txs = true
+sorting = "mev-gas-price"
+failed_order_retries = 1
+drop_failed_orders = true
+
+

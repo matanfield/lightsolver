@@ -71,23 +71,25 @@ pub fn calculate_receipts_data(
 
     let pre_payment_logs_bloom = block_logs_bloom;
     {
-        let executed_tx_info = executed_tx_infos.last().unwrap();
-        let receipt = &executed_tx_info.receipt;
-        let mut current_receipt_bloom = Bloom::ZERO;
+        // Handle case where executed_tx_infos is empty (e.g., when payout tx is skipped in no-sim mode)
+        if let Some(executed_tx_info) = executed_tx_infos.last() {
+            let receipt = &executed_tx_info.receipt;
+            let mut current_receipt_bloom = Bloom::ZERO;
 
-        for log in &receipt.logs {
-            let log_bloom = if let Some(log_bloom) = cache.logs.get(log) {
-                *log_bloom
-            } else {
-                let mut current_log_bloom = Bloom::ZERO;
-                current_log_bloom.accrue_log(log);
-                cache.logs.insert(log.clone(), current_log_bloom);
-                current_log_bloom
-            };
-            current_receipt_bloom.accrue_bloom(&log_bloom);
+            for log in &receipt.logs {
+                let log_bloom = if let Some(log_bloom) = cache.logs.get(log) {
+                    *log_bloom
+                } else {
+                    let mut current_log_bloom = Bloom::ZERO;
+                    current_log_bloom.accrue_log(log);
+                    cache.logs.insert(log.clone(), current_log_bloom);
+                    current_log_bloom
+                };
+                current_receipt_bloom.accrue_bloom(&log_bloom);
+            }
+            receipts_blooms.push(current_receipt_bloom);
+            block_logs_bloom.accrue_bloom(&current_receipt_bloom);
         }
-        receipts_blooms.push(current_receipt_bloom);
-        block_logs_bloom.accrue_bloom(&current_receipt_bloom);
     }
 
     let mut receipts_with_blooms = Vec::with_capacity(executed_tx_infos.len());
@@ -98,7 +100,11 @@ pub fn calculate_receipts_data(
         });
     }
 
-    let (receipts_root, placeholder_receipt_proof) = if fast_finalize {
+    // Handle empty receipts (e.g., when payout tx is skipped in no-sim mode)
+    let (receipts_root, placeholder_receipt_proof) = if receipts_with_blooms.is_empty() {
+        // Empty block - use empty receipts root
+        (B256::ZERO, Vec::new())
+    } else if fast_finalize {
         calculate_receipts_root_and_placeholder_proof_with_cache(
             cache,
             &receipts_with_blooms,
@@ -200,6 +206,11 @@ fn calculate_tx_root_and_placeholder_proof_with_cache(
     let trie = &mut cache.trie;
     let val = &mut cache.buff;
 
+    // Handle empty transactions (e.g., when payout tx is skipped in no-sim mode)
+    if executed_tx_infos.is_empty() {
+        return (B256::ZERO, Vec::new());
+    }
+    
     let root = if !adjust_finalized_block {
         trie.clear_empty();
         for (idx, executed_tx_info) in executed_tx_infos.iter().enumerate() {
@@ -241,6 +252,11 @@ fn calculate_tx_root_and_placeholder_proof_with_alloy(
     cache: &mut TransactionRootCache,
     executed_tx_infos: &[TransactionExecutionInfo],
 ) -> (B256, Vec<Bytes>) {
+    // Handle empty transactions (e.g., when payout tx is skipped in no-sim mode)
+    if executed_tx_infos.is_empty() {
+        return (B256::ZERO, Vec::new());
+    }
+    
     let encoded_txs = executed_tx_infos
         .iter()
         .map(|info| {

@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Error><Code>NoSuchBucket</Code><Message>The specified bucket does not exist</Message><BucketName>mempool-dumpster</BucketName><RequestId>53W6MEJC100SHVQ8</RequestId><HostId>uFDoVHYjs5Pa7R9Dy7nwobR9VXjxEtyLLZnT/faQSacyWNpF0EUBaw8NtEDgatN1Vt9X5ROsLMc=</HostId></Error>

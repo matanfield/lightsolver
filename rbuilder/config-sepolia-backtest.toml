@@ -1,0 +1,53 @@
+# Sepolia Backtest Configuration
+# Uses QuickNode endpoints for fetching historical data
+
+log_level = "info,rbuilder=debug"
+
+chain = "sepolia"
+
+# QuickNode endpoints (set these as environment variables)
+# QUICK_NODE_ETH_SPOLIA_API_URL_HTTP=...
+# QUICK_NODE_ETH_SPOLIA_API_URL_WSS=...
+backtest_fetch_eth_rpc_url = "env:QUICK_NODE_ETH_SPOLIA_API_URL_HTTP"
+backtest_fetch_eth_rpc_parallel = 10  # Adjust based on your QuickNode rate limits
+backtest_fetch_output_file = "~/.rbuilder/backtest/sepolia.sqlite"
+backtest_fetch_mempool_data_dir = "~/.rbuilder/mempool-data/sepolia"
+backtest_results_store_path = "~/.rbuilder/backtest/sepolia-results.sqlite"
+
+# Set to false to allow fetching blocks even when relays don't have payload data
+# This uses a fake payload derived from the landed block instead
+backtest_require_payload_from_relays = false
+
+# Optional: only needed if you run a local Reth node / IPC provider
+# reth_datadir = "env:RETH_DATADIR"
+# ipc_provider = "/tmp/reth-sepolia.ipc"
+
+sbundle_mergeable_signers = []
+
+# Builders to test - start with greedy algorithms
+backtest_builders = ["greedy-mp-ordering"]
+
+# Greedy algorithm: Max Profit ordering
+[[builders]]
+name = "greedy-mp-ordering"
+algo = "ordering-builder"
+discard_txs = true
+sorting = "max-profit"  # This is the greedy algorithm
+failed_order_retries = 1
+drop_failed_orders = true
+
+# Alternative greedy: MEV Gas Price ordering
+[[builders]]
+name = "greedy-mgp-ordering"
+algo = "ordering-builder"
+discard_txs = true
+sorting = "mev-gas-price"  # Another greedy variant
+failed_order_retries = 1
+drop_failed_orders = true
+
+# TODO: Add your custom algorithm builder here
+# [[builders]]
+# name = "custom-algo"
+# algo = "ordering-builder"  # or "parallel-builder" or your custom algo
+# ... your custom config ...
+

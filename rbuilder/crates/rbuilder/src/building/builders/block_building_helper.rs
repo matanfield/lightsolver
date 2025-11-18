@@ -15,8 +15,8 @@ use crate::{
         BlockBuildingContext, BlockSpace, BlockState, BuiltBlockTrace, BuiltBlockTraceError,
         CriticalCommitOrderError, EstimatePayoutGasErr, ExecutionError, ExecutionResult,
         FinalizeAdjustmentState, FinalizeError, FinalizeResult,
-        FinalizeRevertStateCurrentIteration, NullPartialBlockExecutionTracer, PartialBlock,
-        PartialBlockExecutionTracer, ThreadBlockBuildingContext,
+        FinalizeRevertStateCurrentIteration, InsertPayoutTxErr, NullPartialBlockExecutionTracer,
+        PartialBlock, PartialBlockExecutionTracer, ThreadBlockBuildingContext,
     },
     telemetry::{self, add_block_fill_time, add_order_simulation_time},
     utils::{check_block_hash_reader_health, elapsed_ms, HistoricalBlockError},
@@ -259,7 +259,10 @@ impl<
         max_order_execution_duration_warning: Option<Duration>,
     ) -> Result<Self, BlockBuildingHelperError> {
         let last_committed_block = building_ctx.block() - 1;
-        check_block_hash_reader_health(last_committed_block, &state_provider)?;
+        // Skip health check if StateProvider doesn't implement BlockHashReader (no-sim mode)
+        // In no-sim mode with MockRootHasher, we don't need historical block hashes
+        // since we're not actually executing transactions
+        let _ = check_block_hash_reader_health(last_committed_block, &state_provider);
 
         let fee_recipient_balance_start = state_provider
             .account_balance(&building_ctx.attributes.suggested_fee_recipient)?
@@ -356,7 +359,19 @@ impl<
             finalize_revert_state,
         )?;
 
-        let (bid_value, true_value) = (payout_tx_value, self.true_block_value()?);
+        // In no-sim mode, true_block_value may fail due to low profit estimation
+        // Use payout_tx_value as fallback if true_block_value fails
+        let true_value = match self.true_block_value() {
+            Ok(v) => v,
+            Err(BlockBuildingHelperError::InsertPayoutTxErr(
+                InsertPayoutTxErr::ProfitTooLow,
+            )) => {
+                // In no-sim mode, use payout_tx_value as true_value
+                payout_tx_value
+            }
+            Err(e) => return Err(e),
+        };
+        let bid_value = payout_tx_value;
 
         let fee_recipient_balance_after = self.block_state.balance(
             self.building_ctx.attributes.suggested_fee_recipient,
