@@ -1,0 +1,52 @@
+{
+  "block_number": 21200001,
+  "problem_size_original": 2057,
+  "problem_size_filtered": 10,
+  "lpu_solution": {
+    "selected_tx_indices": [
+      0,
+      1,
+      4,
+      6,
+      8
+    ],
+    "num_txs": 5,
+    "total_profit_wei": 2781430437995820,
+    "total_profit_eth": 0.00278143043799582,
+    "total_gas": 443388,
+    "gas_utilization": 0.0147796,
+    "constraint_satisfied": true
+  },
+  "greedy_solution_filtered": {
+    "selected_tx_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "num_txs": 10,
+    "total_profit_wei": 4825087452896820,
+    "total_profit_eth": 0.00482508745289682,
+    "total_gas": 877620,
+    "gas_utilization": 0.029254
+  },
+  "greedy_solution_full": {
+    "num_txs": 291,
+    "total_profit_wei": 29056175405648356,
+    "total_profit_eth": 0.029056175405648355,
+    "total_gas": 29984889,
+    "gas_utilization": 0.9994963
+  },
+  "comparison": {
+    "profit_difference_wei": -2043657014901000,
+    "profit_difference_eth": -0.002043657014901,
+    "profit_improvement_percent": -42.35481812198154,
+    "lpu_is_better": false
+  }
+}

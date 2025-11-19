@@ -5,7 +5,7 @@
 //! Usage:
 //!   backtest-build-block-no-sim --config config.toml --builders greedy-mp-ordering --builders custom-algo 18920193
 
-use alloy_primitives::{utils::format_ether, U256};
+use alloy_primitives::{utils::format_ether, Address, U256};
 use clap::Parser;
 use rbuilder_config::load_toml_config;
 use rbuilder_primitives::{Order, OrderId, SimValue, SimulatedOrder};

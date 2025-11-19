@@ -1,0 +1,186 @@
+name: Build and Publish Python packages [PyPi]
+run-name: Build laser-mind-client Python package by @${{ github.actor }}
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  validate-pr:
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    runs-on: [ lightsolver-github-runner ]
+    steps:
+      - name: Collect PR approvers
+        id: collect_approvers
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          PR_AUTHOR=${{ github.event.pull_request.user.login }}
+
+          # Fetch all reviews. We only care about each reviewer's latest state.
+          REVIEWS=$(curl -sS -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews?per_page=100")
+
+          # Build list of unique approvers whose latest state is APPROVED and not the PR author.
+          # 1) sort by reviewer and submitted_at
+          # 2) group by reviewer
+          # 3) take the last review for each reviewer
+          # 4) keep only APPROVED states
+          # 5) extract login, exclude author
+          APPROVERS_JSON=$(echo "$REVIEWS" | jq -r '
+            sort_by([.user.login, .submitted_at])                              
+            | group_by(.user.login)                                            
+            | map(.[-1])                                                       
+            | map(select(.state == "APPROVED"))                                
+            | map(.user.login)                                                 
+            | map(select(. != "'"$PR_AUTHOR"'"))                               
+          ')
+
+          # Ensure we have at least one non-author approver.
+          if [[ $(echo "$APPROVERS_JSON" | jq 'length') -eq 0 ]]; then
+            echo "PR not approved or not approved by anyone other than the author."
+            exit 1
+          fi
+
+          echo "PR Author: $PR_AUTHOR PR Approvers:" $(echo "$APPROVERS_JSON" | jq -r 'join(", ")')
+  # We need to run this job first to have access to our private `github-actions` repository without a paid plan
+  checkout:
+    # Our runners have this tag. The runner must match all the tags to run the CI, so adding more tags to
+    # specify concrete configurations is good. For example, we probably want something like this:
+    # runs-on: [ lightsolver-github-runner linux cpu no-gpu ]
+    runs-on: [ lightsolver-github-runner ]
+    needs: validate-pr
+    steps:
+      - uses: hmarr/debug-action@v2
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Checkout github-actions repository
+        uses: actions/checkout@v3
+        with:
+          repository: LightSolverInternal/github-actions
+          token: ${{ secrets.TOKEN }}
+          path: reusable-actions
+    
+  enforce-changelog-update:
+    runs-on: [ lightsolver-github-runner ]
+    needs: checkout
+    steps:
+      - name: Fail if CHANGES.md not updated
+        shell: bash
+        run: |
+          echo "Comparing HEAD^1..HEAD"
+          if git diff --name-only HEAD^1 HEAD | grep -qE '^CHANGES\.md$'; then
+            echo "CHANGES.md updated"
+          else
+            echo "::error title=Missing changelog::Please update CHANGES.md for this change."
+            exit 1
+          fi
+
+  # The environment isn't cleared between jobs on a single runner, so we can use `github-actions` repository we cloned
+  build-python-packages:
+    runs-on: [ lightsolver-github-runner ]
+    needs: enforce-changelog-update
+    env:
+      AWS_REGION: "eu-central-1"
+      CODE_ARTIFACT_REPOSITORY_NAME: "general-pypi-repo"
+      CODE_ARTIFACT_DOMAIN_NAME: "ls-prod"
+      AWS_ACCOUNT_OWNER_ID: "541441380680"
+    permissions:
+      id-token: write # This permission is required for trusted publish to PyPI: https://docs.pypi.org/trusted-publishers/
+
+    steps:
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Tag and Set version
+        id: tag-set-version
+        # This points to the path of our action inside the repository we cloned before
+        uses: ./reusable-actions/tag-set-python-package-version
+        with:
+          github_token: ${{ secrets.TOKEN}}
+          default_bump: "minor"
+
+      - name: Install pypa/build requests and markdown-it-py
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install build markdown-it-py requests
+      - name: Build a binary wheel and a source tarball
+        run: |
+          source venv/bin/activate
+          python3 -m build
+
+      # The contents of `dist/` folder will be available on Github when viewing the CI run
+      - name: Store the distribution packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: Store the files for onboarding
+        uses: actions/upload-artifact@v4
+        with:
+          name: onboarding
+          path: |
+            README.md
+            tests/
+
+      - name: Store the files for onboarding [OFFLINE]
+        uses: actions/upload-artifact@v4
+        with:
+          name: onboarding-offline
+          path: |
+            README.md
+            tests/
+            packages/
+
+      - name: Get PYPI_TOKEN from AWS SSM
+        uses: Bardavon-Health/actions-aws-ssm-params-to-env@v1.3.2
+        with:
+          ssm-path: /ls/pypi/token #will get as PYPI_TOKEN
+
+      - name: Set API_TOKEN
+        id: pypi-api-token
+        # $GITHUB_OUTPUT points to a file that stores outputs from the CI in key=value format
+        run: echo "API_TOKEN=$PYPI_TOKEN" >> $GITHUB_OUTPUT
+
+      - name: Publish package to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ steps.pypi-api-token.outputs.API_TOKEN }}
+          repository-url: https://upload.pypi.org/legacy/
+
+      - name: Update knowledge base website with new version
+        shell: bash
+        run: |
+          NEW_VERSION="${{ steps.tag-set-version.outputs.new_version }}"
+          PRODUCT_VERSION_TOKEN="${{ secrets.WORDPRESS_PRODUCT_VERSION_TOKEN }}"
+          
+          timestamp=$(date "+%b %-d, %Y")
+          payload="{\"version\": \"${NEW_VERSION}, ${timestamp}\", \"product\":\"client\"}"
+          echo "new version is ${NEW_VERSION}"
+          echo "payload is ${payload}"
+          curl -sS --fail-with-body -X POST "https://kb.lightsolver.com/wp-json/product/v1/version" \
+            -H "Accept: application/json" \
+            -H "Content-Type: application/json" \
+            -H "x-product-token: ${PRODUCT_VERSION_TOKEN}" \
+            --data "$payload" \
+            --max-time 60
+
+      - name: Update release notes in knowledge base website
+        uses: ./reusable-actions/render-changelog-and-send-to-wp
+        with:
+          title: "Client Release Notes"
+          page_slug: "client-release-notes"
+          debug: "true"
+          password: ${{ secrets.WORDPRESS_ADMIN_TOKEN_PASSWORD }}
+          username: "shaulc" # TODO change the user

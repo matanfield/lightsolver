@@ -22,6 +22,10 @@ backtest_require_payload_from_relays = false
 # reth_datadir = "env:RETH_DATADIR"
 # ipc_provider = "/tmp/reth-sepolia.ipc"
 
+# Note: For live building (not backtesting), you can use QuickNode WebSocket for mempool:
+# mempool_ws_url = "env:QUICK_NODE_ETH_SPOLIA_API_URL_WSS"
+# This allows using QuickNode mempool independently of your state provider
+
 sbundle_mergeable_signers = []
 
 # Builders to test - start with greedy algorithms

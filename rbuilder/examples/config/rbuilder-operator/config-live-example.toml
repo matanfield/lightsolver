@@ -13,7 +13,11 @@ coinbase_secret_key = "env:COINBASE_SECRET_KEY"
 cl_node_url = ["http://localhost:3500"]
 jsonrpc_server_port = 8645
 jsonrpc_server_ip = "0.0.0.0"
-el_node_ipc_path = "/tmp/reth.ipc"
+# Use QuickNode WebSocket for mempool subscription (independent of state provider)
+# This takes precedence over el_node_ipc_path for mempool
+mempool_ws_url = "env:QUICK_NODE_ETH_MAINNET_API_URL_WSS"
+# Alternative: Use local IPC for mempool (if you have a local Reth node)
+# el_node_ipc_path = "/tmp/reth.ipc"
 extra_data = "⚡🤖"
 
 blocklist_file_path = "./blocklist.json"

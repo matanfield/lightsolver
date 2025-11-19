@@ -1,0 +1,50 @@
+================================================================================
+KNAPSACK TO LPU SOLVER (EMULATOR)
+================================================================================
+
+1. Loading knapsack instance from: ../rbuilder/knapsack_instance_21200000.json
+   Block number: 21200000
+   Number of transactions: 2005
+   Total profit available: 0.019476 ETH (19,475,667,112,017,234 wei)
+   Total gas available: 156,188,289
+   Gas limit (capacity): 30,000,000
+
+   ⚠️  Problem size (2005) exceeds LPU limit (10)
+   Selecting top 10 transactions by profit/gas ratio...
+   Filtered to 10 transactions
+   Filtered profit available: 0.010577 ETH
+
+2. Converting to QUBO matrix...
+   QUBO matrix shape: (10, 10)
+   Offset: 5.58e+24
+
+3. Solving with LightSolver Emulator...
+11/19/2025 13:54:26 New refresh token provided, try to get access_token  ...
+11/19/2025 13:54:27 LSAPIClient created,connection is authenticated and authorized
+11/19/2025 13:54:27 LightSolver connection init finished
+Converting QUBO (10x10) to coupling matrix...
+  ✓ Ising matrix created (offset: -5.82e+23)
+  ✓ Coupling matrix created (valid: True)
+Sending to Virtual Lab Emulator (runs=10, iterations=1000)...
+11/19/2025 13:54:27 getting url ...
+11/19/2025 13:54:28 sending commant request...
+11/19/2025 13:54:29 got response {'id': '80c00bfec53e11f096570242ac110002', 'reqTime': '19-11-2025-11-54-28-719955', 'totalServerTime': 0.00711027201032266, 'receivedTime': '19-11-2025-11-54-28-692097'}
+11/19/2025 13:54:29 getting result ...
+11/19/2025 13:54:30 getting 80c00bfec53e11f096570242ac110002_19-11-2025-11-54-28-719955
+11/19/2025 13:54:33 got solution for {'id': '80c00bfec53e11f096570242ac110002', 'reqTime': '19-11-2025-11-54-28-719955', 'totalServerTime': 0.00711027201032266, 'receivedTime': '19-11-2025-11-54-28-692097'}, try #1
+/Users/matanfield/Projects/lightsolver/lightsolver-lab/laser-mind-client/.venv/lib/python3.12/site-packages/lightsolver_lib/lightsolver_lib.py:135: RuntimeWarning: overflow encountered in divide
+  state = state / numpy.abs(state)
+  ✓ Emulator solution received
+Traceback (most recent call last):
+  File "/Users/matanfield/Projects/lightsolver/lightsolver-lab/knapsack_lpu_solver.py", line 515, in <module>
+    main(knapsack_json, token_file, max_vars)
+  File "/Users/matanfield/Projects/lightsolver/lightsolver-lab/knapsack_lpu_solver.py", line 387, in main
+    lpu_solution, lpu_response = solve_qubo_emulator(Q, token_file_path)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/matanfield/Projects/lightsolver/lightsolver-lab/knapsack_lpu_solver.py", line 180, in solve_qubo_emulator
+    ising_state, energy = best_energy_search_xy(final_state, I)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/matanfield/Projects/lightsolver/lightsolver-lab/laser-mind-client/.venv/lib/python3.12/site-packages/lightsolver_lib/lightsolver_lib.py", line 161, in best_energy_search_xy
+    rows_to_flip = [ind_sort[i % n_lasers, idx_state] for idx_state in idx_states]
+                    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+IndexError: too many indices for array: array is 1-dimensional, but 2 were indexed

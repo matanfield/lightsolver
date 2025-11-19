@@ -1,0 +1,12 @@
+Error: Config file parsing
+
+Caused by:
+    TOML parse error at line 1, column 1
+      |
+    1 | log_json = true
+      | ^^^^^^^^^^^^^^^
+    unknown field `mempool_ws_url`
+
+
+Location:
+    /Users/matanfield/Projects/lightsolver/rbuilder/crates/rbuilder-config/src/lib.rs:17:43

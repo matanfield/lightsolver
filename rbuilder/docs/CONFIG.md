@@ -15,6 +15,7 @@ Every field has a default if omitted.
 |error_storage_path|optional string| Path to a sqlite file that will store info for some critical errors|None|
 |coinbase_secret_key|optional env/string|If no key is provided a random one is generated. Format is "0x121232432...."|None|
 |el_node_ipc_path|optional string| Path for Ipc communication with reth's mempool, Usually something like "/tmp/reth.ipc". If not set mempool will not be used as a source of txs|None|
+|mempool_ws_url|optional string| WebSocket URL for mempool subscription (e.g., QuickNode WebSocket endpoint). If set, this takes precedence over `ipc_provider.mempool_server_url` and `el_node_ipc_path` for mempool. Allows using external mempool providers (like QuickNode) independently of the state provider. Example: `"env:QUICK_NODE_ETH_MAINNET_API_URL_WSS"`|None|
 |jsonrpc_server_port| int| |8645|
 |jsonrpc_server_ip|string||"0.0.0.0"|
 |jsonrpc_server_max_connections|int|The maximum number of connections|4096|

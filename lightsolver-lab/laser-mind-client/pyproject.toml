@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "laser-mind-client"
+version = "0.1.1"
+authors = [
+  { name="Assaf Kalinski", email="assaf@lightsolver.com" },
+]
+description = "A client python API for accessing LightSolver's capabilities"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+  'numpy==1.26.4',
+  'laser-mind-client-meta>=0.8.1',
+  'ls_api_clients>=0.28.1',
+  'ls-packers>=0.2.0',
+  "lightsolver_lib"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://lightsolver.com"
+
+
+[tool.setuptools.packages.find]
+include = ["laser_mind_client"]
+

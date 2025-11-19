@@ -155,7 +155,10 @@ impl OrderInputConfig {
             .jsonrpc_server_max_connections
             .unwrap_or(DEFAULT_SERVE_MAX_CONNECTIONS);
 
-        let mempool = if let Some(provider) = &config.ipc_provider {
+        let mempool = if let Some(ws_url) = &config.mempool_ws_url {
+            // Dedicated mempool WebSocket URL (e.g., QuickNode) takes highest precedence
+            Some(MempoolSource::Ws(ws_url.clone()))
+        } else if let Some(provider) = &config.ipc_provider {
             Some(MempoolSource::Ws(provider.mempool_server_url.clone()))
         } else if let Some(path) = &config.el_node_ipc_path {
             let expanded_path = expand_path(path.as_path())?;

@@ -73,7 +73,7 @@ case "$1" in
             ./fetch-recent-blocks.sh "$HOURS"
         else
             echo "Fetching historical data for blocks $2 to $3..."
-            cargo run --release --bin backtest-fetch -- \
+            cargo run --release -p rbuilder --bin backtest-fetch -- \
                 --config "$CONFIG" \
                 fetch --ignore-errors --range "$2" "$3"
         fi
@@ -84,7 +84,7 @@ case "$1" in
             exit 1
         fi
         echo "Testing greedy algorithm on block $2..."
-        cargo run --release --bin backtest-build-block -- \
+        cargo run --release -p rbuilder --bin backtest-build-block -- \
             --config "$CONFIG" \
             --builders greedy-mp-ordering \
             "$2"
@@ -95,7 +95,7 @@ case "$1" in
             exit 1
         fi
         echo "Testing greedy algorithm on blocks $2 to $3 (storing results)..."
-        cargo run --release --bin backtest-build-range -- \
+        cargo run --release -p rbuilder --bin backtest-build-range -- \
             --config "$CONFIG" \
             --store-backtest \
             --range \
@@ -108,7 +108,7 @@ case "$1" in
             exit 1
         fi
         echo "Comparing custom algorithm vs stored greedy results for blocks $2 to $3..."
-        cargo run --release --bin backtest-build-range -- \
+        cargo run --release -p rbuilder --bin backtest-build-range -- \
             --config "$CONFIG" \
             --compare-backtest \
             --range \

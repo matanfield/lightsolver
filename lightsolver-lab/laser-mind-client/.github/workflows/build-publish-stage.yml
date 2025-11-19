@@ -1,0 +1,63 @@
+name: Build Python packages [STAGE]
+run-name: Build laser-mind-client Python package by @${{ github.actor }}
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - stage
+      
+jobs:
+  checkout:
+    runs-on: [ lightsolver-github-runner ]
+    steps:
+      - uses: hmarr/debug-action@v2
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Checkout github-actions repository
+        uses: actions/checkout@v3
+        with:
+          repository: LightSolverInternal/github-actions
+          token: ${{ secrets.TOKEN }}
+          path: reusable-actions
+
+  build-python-packages:
+    runs-on: [ lightsolver-github-runner ]
+    needs: checkout
+    env:
+      AWS_REGION: "eu-central-1"
+      CODE_ARTIFACT_REPOSITORY_NAME: "solver-simulations"
+      AWS_ACCOUNT_OWNER_ID: "541441380680"
+
+    strategy:
+      matrix:
+        include:
+          - environment: "Dev"
+            artifactory: "ls-dev-repo"
+          - environment: "Stage"
+            artifactory: "lightsolvercloud"
+
+    steps:
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Tag and Set version
+        id: tag-set-version
+        uses: ./reusable-actions/tag-set-python-package-version
+        with:
+          github_token: ${{ secrets.TOKEN }}
+          default_bump: "patch"
+
+      - name: Build Test and Upload [${{ matrix.environment }}]
+        uses: ./reusable-actions/build-python-package
+        id: python-build
+        with:
+          aws-account-owner-id: ${{ env.AWS_ACCOUNT_OWNER_ID }}
+          aws-account-region: ${{ env.AWS_REGION }}
+          code-artifact-domain-name: ${{ matrix.artifactory }}
+          code-artifact-repository-name: ${{ env.CODE_ARTIFACT_REPOSITORY_NAME }}
+          python-install-requirements: "false"

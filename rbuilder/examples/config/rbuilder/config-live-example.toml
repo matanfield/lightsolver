@@ -17,7 +17,11 @@ relay_secret_key = "env:RELAY_SECRET_KEY"
 cl_node_url = ["env:CL_NODE_URL"]
 jsonrpc_server_port = 8645
 jsonrpc_server_ip = "0.0.0.0"
-el_node_ipc_path = "/tmp/reth.ipc"
+# Use QuickNode WebSocket for mempool subscription (independent of state provider)
+# This takes precedence over el_node_ipc_path for mempool
+mempool_ws_url = "wss://indulgent-winter-bush.quiknode.pro/e162b5fcebd0055602eed695732927ee2a0fa669/"
+# Alternative: Use local IPC for mempool (if you have a local Reth node)
+# el_node_ipc_path = "/tmp/reth.ipc"
 extra_data = "⚡🤖"
 
 blocklist_file_path = "./blocklist.json"

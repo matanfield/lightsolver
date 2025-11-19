@@ -78,6 +78,9 @@ pub struct BaseConfig {
     coinbase_secret_key: Option<EnvOrValue<String>>,
 
     pub el_node_ipc_path: Option<PathBuf>,
+    /// WebSocket URL for mempool subscription (e.g., QuickNode WebSocket endpoint)
+    /// If set, this takes precedence over ipc_provider.mempool_server_url and el_node_ipc_path for mempool
+    pub mempool_ws_url: Option<String>,
     pub jsonrpc_server_port: u16,
     #[serde(default = "default_ip")]
     pub jsonrpc_server_ip: Ipv4Addr,
@@ -505,6 +508,7 @@ impl Default for BaseConfig {
             error_storage_path: None,
             coinbase_secret_key: None,
             el_node_ipc_path: None,
+            mempool_ws_url: None,
             jsonrpc_server_port: DEFAULT_INCOMING_BUNDLES_PORT,
             jsonrpc_server_ip: default_ip(),
             jsonrpc_server_max_connections: None,

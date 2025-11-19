@@ -1,0 +1,33 @@
+name: Render changelog and update knowledge base
+run-name: Render changelog and update knowledge base by @${{ github.actor }}
+
+on:
+  workflow_dispatch:
+
+jobs:
+  checkout:
+    runs-on: [ lightsolver-github-runner ]
+    steps:
+      - uses: hmarr/debug-action@v2
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Checkout github-actions repository
+        uses: actions/checkout@v3
+        with:
+          repository: LightSolverInternal/github-actions
+          token: ${{ secrets.TOKEN }}
+          path: reusable-actions
+  update-changelog:
+    runs-on: [ lightsolver-github-runner ]
+    needs: checkout
+    steps:        
+      - name: Update release notes in knowledge base website
+        uses: ./reusable-actions/render-changelog-and-send-to-wp
+        with:
+          title: "Client Release Notes"
+          page_slug: "client-release-notes"
+          debug: "true"
+          password: ${{ secrets.WORDPRESS_ADMIN_TOKEN_PASSWORD }}
+          username: "shaulc" # TODO change the user
