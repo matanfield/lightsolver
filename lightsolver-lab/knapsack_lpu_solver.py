@@ -136,13 +136,11 @@ def solve_qubo_emulator(Q_matrix, token_file_path, num_runs=10, num_iterations=1
     n = Q_matrix.shape[0]
     print(f"Converting QUBO ({n}x{n}) to coupling matrix...")
     
-    # Normalize QUBO matrix to avoid numerical issues
-    Q_max = np.max(np.abs(Q_matrix))
-    Q_normalized = Q_matrix / Q_max if Q_max > 0 else Q_matrix
-    print(f"  Normalized QUBO (max value: {Q_max:.2e})")
+    # Try WITHOUT normalization first (preserves profit magnitudes)
+    print(f"  Original QUBO range: {np.max(np.abs(Q_matrix)):.2e}")
     
-    # Step 1: QUBO → Ising
-    I, offset_ising = probmat_qubo_to_ising(Q_normalized)
+    # Step 1: QUBO → Ising (without normalization)
+    I, offset_ising = probmat_qubo_to_ising(Q_matrix)
     print(f"  ✓ Ising matrix created (offset: {offset_ising:.2e})")
     
     # Step 2: Ising → Coupling Matrix
