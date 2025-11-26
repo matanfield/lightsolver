@@ -260,3 +260,4 @@ lightsolver/
 
 **Risk**: If all tests fail, may need to conclude that XY model + QUBO is not suitable for this problem type.
 
+

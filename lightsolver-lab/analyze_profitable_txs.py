@@ -169,3 +169,4 @@ print(f"  2. n=200 (75 profitable + 125 zeros) - Test discrimination")
 print(f"  3. n=300 (if emulator supports) - Larger realistic test")
 print("="*80)
 
+
