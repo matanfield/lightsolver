@@ -17,7 +17,7 @@ from qubo_generator import generate_qubo
 
 TOKEN_FILE = 'laser-mind-client/examples/lightsolver-token.txt'
 
-def solve_qubo_with_lpu(Q, num_runs=5, num_iterations=500):
+def solve_qubo_with_lpu(Q, num_runs=10, num_iterations=500):
     """
     Solve QUBO using LPU emulator.
     

@@ -1,0 +1,243 @@
+================================================================================
+PHASE 2: TEST LPU ON SIMPLE QUBOs
+================================================================================
+
+Test Plan:
+  1. Generate uniform random QUBOs of increasing size
+  2. Solve with brute force (ground truth, n≤15)
+  3. Solve with LPU emulator
+  4. Compare results
+
+
+================================================================================
+TESTING n=5
+================================================================================
+
+Instance 1/3
+--------------------------------------------------------------------------------
+Generated 5×5 uniform QUBO
+  Coefficient range: [-0.909, 0.983]
+  Range (max/min): 20.6×
+
+Solving with brute force...
+  ✓ Optimal energy: -2.724581 (in 0.000s)
+
+Solving with LPU emulator...
+  ✓ LPU energy: -0.348884 (in 5.1s)
+
+Comparison:
+  Optimal (brute force): -2.724581
+  LPU result:            -0.348884
+  Gap:                   +2.375697 (+87.19%)
+  ⚠️  LPU suboptimal by 2.375697
+
+Instance 2/3
+--------------------------------------------------------------------------------
+Generated 5×5 uniform QUBO
+  Coefficient range: [-0.924, 0.808]
+  Range (max/min): 14.5×
+
+Solving with brute force...
+  ✓ Optimal energy: -5.187810 (in 0.000s)
+
+Solving with LPU emulator...
+  ✓ LPU energy: -5.187810 (in 5.2s)
+
+Comparison:
+  Optimal (brute force): -5.187810
+  LPU result:            -5.187810
+  Gap:                   +0.000000 (+0.00%)
+  ✅ LPU FOUND OPTIMAL!
+
+Instance 3/3
+--------------------------------------------------------------------------------
+Generated 5×5 uniform QUBO
+  Coefficient range: [-0.936, 0.702]
+  Range (max/min): 33.1×
+
+Solving with brute force...
+  ✓ Optimal energy: -4.502568 (in 0.000s)
+
+Solving with LPU emulator...
+  ✓ LPU energy: -3.098038 (in 4.8s)
+
+Comparison:
+  Optimal (brute force): -4.502568
+  LPU result:            -3.098038
+  Gap:                   +1.404530 (+31.19%)
+  ⚠️  LPU suboptimal by 1.404530
+
+================================================================================
+TESTING n=10
+================================================================================
+
+Instance 1/3
+--------------------------------------------------------------------------------
+Generated 10×10 uniform QUBO
+  Coefficient range: [-0.864, 0.984]
+  Range (max/min): 75.9×
+
+Solving with brute force...
+  ✓ Optimal energy: -11.210895 (in 0.033s)
+
+Solving with LPU emulator...
+  ✓ LPU energy: 2.265542 (in 6.1s)
+
+Comparison:
+  Optimal (brute force): -11.210895
+  LPU result:            2.265542
+  Gap:                   +13.476436 (+120.21%)
+  ⚠️  LPU suboptimal by 13.476436
+
+Instance 2/3
+--------------------------------------------------------------------------------
+Generated 10×10 uniform QUBO
+  Coefficient range: [-0.989, 0.920]
+  Range (max/min): 481.2×
+
+Solving with brute force...
+  ✓ Optimal energy: -11.937611 (in 0.024s)
+
+Solving with LPU emulator...
+  ✓ LPU energy: -0.016722 (in 6.7s)
+
+Comparison:
+  Optimal (brute force): -11.937611
+  LPU result:            -0.016722
+  Gap:                   +11.920889 (+99.86%)
+  ⚠️  LPU suboptimal by 11.920889
+
+Instance 3/3
+--------------------------------------------------------------------------------
+Generated 10×10 uniform QUBO
+  Coefficient range: [-0.998, 0.963]
+  Range (max/min): 249.9×
+
+Solving with brute force...
+  ✓ Optimal energy: -17.656931 (in 0.031s)
+
+Solving with LPU emulator...
+  ✓ LPU energy: -15.187927 (in 5.1s)
+
+Comparison:
+  Optimal (brute force): -17.656931
+  LPU result:            -15.187927
+  Gap:                   +2.469004 (+13.98%)
+  ⚠️  LPU suboptimal by 2.469004
+
+================================================================================
+TESTING n=15
+================================================================================
+
+Instance 1/3
+--------------------------------------------------------------------------------
+Generated 15×15 uniform QUBO
+  Coefficient range: [-0.977, 0.996]
+  Range (max/min): 9898.8×
+
+Solving with brute force...
+  ✓ Optimal energy: -14.800357 (in 1.397s)
+
+Solving with LPU emulator...
+  ✓ LPU energy: -11.795340 (in 9.4s)
+
+Comparison:
+  Optimal (brute force): -14.800357
+  LPU result:            -11.795340
+  Gap:                   +3.005017 (+20.30%)
+  ⚠️  LPU suboptimal by 3.005017
+
+Instance 2/3
+--------------------------------------------------------------------------------
+Generated 15×15 uniform QUBO
+  Coefficient range: [-0.977, 0.986]
+  Range (max/min): 283.4×
+
+Solving with brute force...
+  ✓ Optimal energy: -14.253011 (in 1.393s)
+
+Solving with LPU emulator...
+  ✓ LPU energy: -1.541482 (in 6.6s)
+
+Comparison:
+  Optimal (brute force): -14.253011
+  LPU result:            -1.541482
+  Gap:                   +12.711529 (+89.18%)
+  ⚠️  LPU suboptimal by 12.711529
+
+Instance 3/3
+--------------------------------------------------------------------------------
+Generated 15×15 uniform QUBO
+  Coefficient range: [-0.999, 0.990]
+  Range (max/min): 282.6×
+
+Solving with brute force...
+  ✓ Optimal energy: -33.374064 (in 1.398s)
+
+Solving with LPU emulator...
+  ✓ LPU energy: 1.635086 (in 6.4s)
+
+Comparison:
+  Optimal (brute force): -33.374064
+  LPU result:            1.635086
+  Gap:                   +35.009150 (+104.90%)
+  ⚠️  LPU suboptimal by 35.009150
+
+================================================================================
+SUMMARY
+================================================================================
+
+Results by size:
+
+n=5:
+  Successful: 3/3
+  Found optimal: 1/3
+  Average gap: 1.260076
+  Max gap: 2.375697
+  Success rate: 33.3%
+
+n=10:
+  Successful: 3/3
+  Found optimal: 0/3
+  Average gap: 9.288776
+  Max gap: 13.476436
+  Success rate: 0.0%
+
+n=15:
+  Successful: 3/3
+  Found optimal: 0/3
+  Average gap: 16.908565
+  Max gap: 35.009150
+  Success rate: 0.0%
+
+Overall:
+  Total tests: 9
+  Successful: 9/9 (100.0%)
+  Found optimal: 1/9 (11.1%)
+  Average gap: 9.152472
+
+================================================================================
+PHASE 2, STEP 2.1 COMPLETE
+================================================================================
+
+⚠️  LPU found optimal in 1/9 cases
+
+Need to investigate why some cases fail
+Traceback (most recent call last):
+  File "/Users/matanfield/Projects/lightsolver/lightsolver-lab/test_lpu_on_simple_qubos.py", line 230, in <module>
+    json.dump(results, f, indent=2)
+  File "/opt/homebrew/Cellar/python@3.12/3.12.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/json/__init__.py", line 179, in dump
+    for chunk in iterable:
+                 ^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/json/encoder.py", line 430, in _iterencode
+    yield from _iterencode_list(o, _current_indent_level)
+  File "/opt/homebrew/Cellar/python@3.12/3.12.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/json/encoder.py", line 326, in _iterencode_list
+    yield from chunks
+  File "/opt/homebrew/Cellar/python@3.12/3.12.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/json/encoder.py", line 406, in _iterencode_dict
+    yield from chunks
+  File "/opt/homebrew/Cellar/python@3.12/3.12.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/json/encoder.py", line 439, in _iterencode
+    o = _default(o)
+        ^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/json/encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type bool_ is not JSON serializable
